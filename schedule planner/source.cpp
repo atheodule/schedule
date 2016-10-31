@@ -6,6 +6,8 @@
 
 int main(void){
     
-    
+    Py_Initialize();
+    PyRun_SimpleString("print 'Hello World'");
+    Py_Finalize();
     return 0;
 }
