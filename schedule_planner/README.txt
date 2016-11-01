@@ -7,3 +7,7 @@ This program is to help me
 -will calculate gpa
 
 started 10/31/16
+
+to run
+type this into bash:
+g++ -I/usr/include/python3.4m schedule_planner/source.cpp -lpython3.4m && ./a.out

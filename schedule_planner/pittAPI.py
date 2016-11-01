@@ -258,7 +258,6 @@ class LabAPI:
 
         return di
 
-
 class LaundryAPI:
     location_dict = {
         'TOWERS': '2430136',
