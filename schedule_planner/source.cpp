@@ -11,7 +11,7 @@ int main(void){
     Py_Initialize();
 
     //loading pittAPI
-    PyObject* module = PyImport_ImportModule("ogpitt");
+    PyObject* module = PyImport_ImportModule("pittAPI");
      if (module== NULL){
        PyErr_Print();
     }
