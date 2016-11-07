@@ -11,3 +11,14 @@ started 10/31/16
 to run
 type this into bash:
 g++ -I/usr/include/python3.4m schedule_planner/source.cpp -lpython3.4m && ./a.out
+
+https://help.github.com/articles/adding-an-existing-project-to-github-using-the-command-line/
+
+### Courses
+course = CourseAPI()
+# Will return a list of dictionaries containing courses in subject
+big_dict = course.get_courses(term="2161", subject="CS")
+# Will return a list of dictionaries containing courses that fulfill req
+big_dict = course.get_courses_by_req(term="2161", req="Q")
+# Will return a string, which is the description of the course
+description = course.get_class_description(class_number="10163", term="2161")
