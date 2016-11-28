@@ -1,0 +1,131 @@
+import java.util.Arrays;
+import java.util.Random;
+ 
+ 
+@SuppressWarnings("serial")
+public class Set<T> implements SetInterface<T> {
+ 
+    private T[] set;
+    private int numberOfEntries;
+    private int maxCapacity;
+     
+    @SuppressWarnings("unchecked")
+    public Set(){
+        maxCapacity = 25;
+        set = (T[]) new Object[maxCapacity];
+        numberOfEntries = 0;
+    }
+     
+    @SuppressWarnings("unchecked")
+    public Set(int capacity){
+        maxCapacity = capacity;
+        set = (T[]) new Object[maxCapacity];
+        numberOfEntries = 0;
+    }
+     
+    @Override
+    public int getCurrentSize() {
+        return numberOfEntries;
+    }
+ 
+    @Override
+    public boolean isEmpty() {
+        boolean result=false;
+        if(numberOfEntries==0){
+            result=true;
+        }
+        return result;
+    }
+ 
+    @Override
+    public boolean add(T newEntry) throws SetFullException,
+            IllegalArgumentException {
+        boolean result = false;
+        if (newEntry!=null){
+            if(numberOfEntries == maxCapacity){
+                set = Arrays.copyOf(set,numberOfEntries*2);
+            }
+            if(!this.contains(newEntry)){
+                set[numberOfEntries]=newEntry;
+                numberOfEntries++;
+                result=true;
+            }
+        }
+        else{
+            throw new IllegalArgumentException();
+        }
+        return result;
+    }
+ 
+    @Override
+    public boolean remove(T entry) throws IllegalArgumentException {
+        boolean result = false;
+        if(entry==null){
+             throw new IllegalArgumentException();
+              
+        }
+        else{
+            if(contains(entry)==true){
+                for(int i=0;i<numberOfEntries;i++){
+                    if(entry==set[i]){
+                        int decrease =numberOfEntries-1;
+                        set[i] = set[decrease];
+                        set[decrease]=null;
+                        numberOfEntries--;
+                        result=true;                        
+                    }
+                }
+            }
+        }
+        return result;
+    }
+ 
+    @Override
+    public T remove() {
+        int index = numberOfEntries-1;
+        T entry = null;
+        if(!isEmpty()){
+            if(numberOfEntries>1){
+                Random rand = new Random();
+                int num = numberOfEntries-1;
+                index = rand.nextInt(num);
+            }
+            entry = set[index];
+            set[index] = set[numberOfEntries-1];
+            set[numberOfEntries-1]= null;
+            numberOfEntries--;
+        }
+        return entry;
+    }
+ 
+    @SuppressWarnings("unchecked")
+    @Override
+    public void clear() {
+         
+        set = (T[])new Object[maxCapacity];
+    }
+ 
+    @Override
+    public boolean contains(T entry) throws IllegalArgumentException {
+        boolean contained = false;
+        if(entry==null){
+            throw new IllegalArgumentException();
+              
+        }
+        else{
+            for(int i=0;i<numberOfEntries;i++){
+                if(set[i]==entry){
+                    contained=true;
+                }
+            }
+        }
+        return contained;
+    }
+ 
+    @Override
+    public T[] toArray() {
+        T [] tempArray = Arrays.copyOf(set,numberOfEntries);
+        return tempArray;
+    }
+ 
+}

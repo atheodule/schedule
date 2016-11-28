@@ -1,0 +1,29 @@
+CourseList
+Course
+
+Course{
+String name of course;
+Int course number;
+Int class number;
+
+Rename course;
+Get course number from course name;
+	Get course name from class number;
+Get instructor;
+Get credits;
+}
+
+Courselist
+{
+	Course [] available_courses;
+	Int number of courses;
+	Int max capacity;
+
+	Add course; //no duplicates
+	Remove course;
+	Get number of courses;
+	contains
+	to array
+	print
+	Is empty;
+}

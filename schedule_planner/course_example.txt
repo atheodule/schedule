@@ -1,0 +1,113 @@
+@SuppressWarnings("serial")
+public class Profile implements ProfileInterface {
+     
+    private String fullName;
+    private String aboutMe;
+    private SetInterface <ProfileInterface> followingSet = new Set<ProfileInterface>();
+     
+    public Profile() {
+        fullName = " ";
+        aboutMe = " ";
+    }
+     
+    public Profile(String name,String about){
+        setName(name);
+        setAbout(about);
+    }
+     
+    @Override
+    public void setName(String newName) throws IllegalArgumentException {
+        if(newName!=null){
+            fullName=newName;
+        }
+        else{
+            throw new IllegalArgumentException();
+        }
+    }
+ 
+    @Override
+    public String getName() {
+        return fullName;
+    }
+ 
+    @Override
+    public void setAbout(String newAbout) throws IllegalArgumentException {
+        if(newAbout!=null){
+            aboutMe = newAbout;
+        }
+        else{
+            throw new IllegalArgumentException();
+        }
+ 
+    }
+ 
+    @Override
+    public String getAbout() {
+        return aboutMe;
+    }
+ 
+    @Override
+    public boolean follow(ProfileInterface other) {
+        boolean result = false;
+        if(other!=null){
+            try {
+                followingSet.add(other);
+                result = true;
+            } catch (IllegalArgumentException | SetFullException e) {
+                result = false;
+            }
+        }
+        return result;
+    }
+ 
+    @Override
+    public boolean unfollow(ProfileInterface other) {
+        boolean result = false;
+        if(other!=null && followingSet.contains(other)){
+            try {
+                followingSet.remove(other);
+                result = true;
+            } catch (IllegalArgumentException e) {
+                result = false;
+            }
+        }
+        return result;
+    }
+ 
+    @Override
+    public ProfileInterface[] following(int howMany) {
+        int numberProfiles = howMany;
+        ProfileInterface[] listFollowing;
+        if(numberProfiles>followingSet.getCurrentSize()){
+            listFollowing = new ProfileInterface[followingSet.getCurrentSize()];
+            Object[] tempProfiles =  followingSet.toArray();
+            for(int i =0;i<followingSet.getCurrentSize();i++){
+                 listFollowing[i] = (ProfileInterface) tempProfiles[i];
+            }
+        }
+        else{
+            listFollowing =  new ProfileInterface[numberProfiles];
+            Object[] tempProfiles = followingSet.toArray();
+             
+            for(int i =0;i<numberProfiles;i++){
+                listFollowing[i]= (ProfileInterface)tempProfiles[i];
+            }   
+        }
+        return  listFollowing;
+    }
+ 
+    @Override
+    public ProfileInterface recommend() {
+        ProfileInterface recommendation=null;
+        Object[] tempProfiles = followingSet.toArray();
+        for(Object temp: tempProfiles){
+            for(ProfileInterface temp2:((ProfileInterface) temp).following(20)){
+                if(!followingSet.contains(temp2) && temp2!=this){
+                    recommendation = temp2;
+                }
+            }
+        }
+        return recommendation;
+    }
+ 
+}
