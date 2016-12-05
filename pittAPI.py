@@ -77,10 +77,10 @@ class CourseAPI:
                         'class_number': course.find('a').contents[0],
                         'title': details[3],
                         'instructor': details[4] if len(details[4]) > 0 else 'Not decided',
-                        #'credits': details[5]
+                       
                     }
                 )
-            else:
+            elif len(details) == 6:
                 course_details.append(
                     {
                         'subject': details[0],
@@ -90,6 +90,18 @@ class CourseAPI:
                         'title': details[3],
                         'instructor': details[4] if len(details[4]) > 0 else 'Not decided',
                         'credits': details[5]
+                }
+            )
+            else:
+                course_details.append(
+                    {
+                        'subject': details[0],
+                        'catalog_number': details[1],
+                        'term': details[2].replace('\r\n\t', ' '),
+                        'class_number': course.find('a').contents[0],
+                        'title': details[3],
+                        'instructor': 'Not decided',
+                        #'credits': details[5]
                     }
                 )
 

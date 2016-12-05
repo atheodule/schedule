@@ -5,63 +5,88 @@
 #include <assert.h>
 #include <iostream>
 #include <string>
+#include <vector>
+#include <typeinfo>
 
-void classdesc(void);
+void showClassDescript(int classEntry, int termEntry);
 void listclasses(void);
 
 class Course{
     private:
         char *name;
-        int course_number;
-        int number_of_credits;
+        char *course_number;
+        //int number_of_credits;
+        //char *professor;
         
     public:
-        Course(char *title, int course_num, int credit){
-            title = name;
+        Course(char *title, char *course_num){
+            name = title;;
             course_number = course_num;
-            number_of_credits = credit;
+           // number_of_credits = credit;
         };
-        Course(){
-            name = NULL;
-            course_number = 0;
-            number_of_credits = 0;
+        std::string getCourseNumber(){
+            std::string newString(course_number);
+            return newString;
+            
         };
-        void renameCourse(char * new_name){
-            name = new_name;
+        //int getNumberOfCredits(){return number_of_credits;};
+        std::string getTitle(){
+            std::string newString(name);
+            return newString;
+            
         };
-        int getCourseNumber(){
-            return course_number;
-        };
-        int getNumberOfCredits(){
-            return number_of_credits;
-        };
-        char* getInstructor();
 };
 
-class CourseList{
+class BigCourseList{
     private:
-        Course available_courses [];
+        std::vector<Course> available_courses;
         int number_of_courses;
-        int maxCapacity;
-    
     public:
-        CourseList(){
-            maxCapacity = 30;
+        BigCourseList(){
             number_of_courses = 0;
-            Course available_courses [maxCapacity];
         };
-        
-        void addCourse(Course);
-        void removeCourse(Course);
-        int getNumberOfCourses();
-        bool contains(Course);
-        void printCourses();
-        bool isEmpty();
+        void addCourse(Course newCourse){
+            if(this -> contains(newCourse)==false){
+                available_courses.push_back(newCourse);
+                number_of_courses++;
+            }
+        };
+        bool removeCourse(Course entry){
+            bool result = false;
+            if(contains(entry) == true){
+                for(int i=0;i<number_of_courses;i++){
+                    if(available_courses[i].getCourseNumber() == entry.getCourseNumber()){
+                        int decrease =number_of_courses-1;
+                        available_courses[i] = available_courses[decrease];
+                        number_of_courses--;
+                        result=true;                        
+                    }
+                }
+            }
+            return result;
+        };
+        int getNumberOfCourses(void){return number_of_courses;};
+        bool contains(Course entry){
+            bool contained=false;;
+            for(int i = 0; i<number_of_courses;i++){
+                    if(available_courses.at(i).getCourseNumber() == entry.getCourseNumber()){contained = true;}
+            }
+            return contained;
+        };
+        void printCourses(){
+            for(int i =0;i<number_of_courses;i++){
+                 std::cout<<"\n"<<(i+1)<<": "<< available_courses.at(i).getTitle()<<" "<<available_courses.at(i).getCourseNumber();
+            }
+        };
+        bool isEmpty(void){
+            bool result;
+            number_of_courses == 0 ? result = true : result = false;
+            return result;
+        };
 };
 
 int main(void)
 {
-    //classdesc();
     listclasses();
     return 0;
 }
@@ -133,6 +158,7 @@ void listclasses(void){
     assert(courselist != NULL);
    
    //getting dictionary of files
+   BigCourseList course_list;
    
    for(int i = 0; i < PyList_Size(courselist); i++){
       
@@ -166,30 +192,50 @@ void listclasses(void){
       PyArg_Parse(class_title, "s", &title_string);
       PyArg_Parse(class_numcheck, "s", &class_string);
       PyArg_Parse(professor, "s", &professor_string);
+     
       
      if(atoi(term_string) < 1885){
-        std::cout<<"\nItem "<<(i+1)<<":"<<"\n"<<title_string<<" "<<term_string<<" "<<professor_string;
+        Course tempCourse(title_string,term_string);
+        course_list.addCourse(tempCourse);
      }
    }
-  
-   
+    //end python api
+    Py_Finalize();
+
+    //showing courses    
+    //std::cout<<"\nNumber of courses: "<<course_list.getNumberOfCourses()<<"\n";
+    std::cout<<"\nWhat class would you like to get information for: \n";
+    course_list.printCourses();
+    int userchoice;
+    std::cout<<"\nAnswer: ";
+    std::cin>>userchoice;
 }
 
-void classdesc(void)
+// void chooseCourse(int userChoice){
+//     std::string questsub = "What class would you like to see information for:\n1. CS Courses\n2. ECE Courses\n3. COE Courses\nAnswer: ";
+//     std::cout<<questsub; 
+//     std::cin>>class_select;
+    
+//     switch (class_select){
+//         case 1: s_subject = "CS"; 
+//         break;
+        
+//         case 2: s_subject = "ECE";
+//         break;
+        
+//         case 3: s_subject = "COE";
+//         break;
+//     }
+// }
+
+
+void showClassDescript(int classEntry, int termEntry)
 {
     //initilazing variables
     char *cstr;
-    int userterm; int userclassnum;
+    int userterm = termEntry; 
+    int userclassnum = classEntry;
    
-    std::string questterm = "What term would you like to search? ";
-    std::cout<<questterm; 
-    std::cin>>userterm;
-    
-    std::string questclass = "What is the class number? ";
-    std::cout<<questclass;
-    std::cin>>userclassnum;
-    
-    
     Py_Initialize();
 
     //PyRun_SimpleString("import sys");
@@ -227,5 +273,4 @@ void classdesc(void)
 
     //end python api
     Py_Finalize();
-    
 }

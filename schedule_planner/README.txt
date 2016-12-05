@@ -10,7 +10,7 @@ started 10/31/16
 
 to run
 type this into bash:
-g++ -I/usr/include/python3.4m schedule_planner/source.cpp -Wno-write-strings -lpython3.4m && ./a.out 
+g++ -I/usr/include/python3.4m schedule_planner/source.cpp -std=c++0x -Wno-write-strings -lpython3.4m && ./a.out 
 
 https://help.github.com/articles/adding-an-existing-project-to-github-using-the-command-line/
 
@@ -33,3 +33,7 @@ variable = condition ? value_if_true : value_if_false;
 
 (condition ? variable1 : variable2) = value;  
 	if the boolean expression condition yields the value true, the value is assigned to the variable1, otherwise, it is assigned to variable2.
+	
+	http://stackoverflow.com/questions/4810664/how-do-i-use-arrays-in-c
+	http://stackoverflow.com/questions/789402/typeid-returns-extra-characters-in-g
+	https://msdn.microsoft.com/en-us/library/bb384845.aspx

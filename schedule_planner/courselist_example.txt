@@ -24,20 +24,6 @@ public class Set<T> implements SetInterface<T> {
     }
      
     @Override
-    public int getCurrentSize() {
-        return numberOfEntries;
-    }
- 
-    @Override
-    public boolean isEmpty() {
-        boolean result=false;
-        if(numberOfEntries==0){
-            result=true;
-        }
-        return result;
-    }
- 
-    @Override
     public boolean add(T newEntry) throws SetFullException,
             IllegalArgumentException {
         boolean result = false;
@@ -98,12 +84,6 @@ public class Set<T> implements SetInterface<T> {
         return entry;
     }
  
-    @SuppressWarnings("unchecked")
-    @Override
-    public void clear() {
-         
-        set = (T[])new Object[maxCapacity];
-    }
  
     @Override
     public boolean contains(T entry) throws IllegalArgumentException {
