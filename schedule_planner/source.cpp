@@ -78,6 +78,9 @@ class BigCourseList{
                  std::cout<<"\n"<<(i+1)<<": "<< available_courses.at(i).getTitle()<<" "<<available_courses.at(i).getCourseNumber();
             }
         };
+        Course getCourse(int indexOfCourse){
+            return available_courses.at(indexOfCourse);
+        }
         bool isEmpty(void){
             bool result;
             number_of_courses == 0 ? result = true : result = false;
@@ -95,7 +98,7 @@ void listclasses(void){
     //asking what classes would you like to see
     int class_select; char *s_subject; int userterm;
     
-    std::string questsub = "What subject would you like to search:\n1. CS Courses\n2. ECE Courses\n3. COE Courses\nAnswer: ";
+    std::string questsub = "What subject would you like to search:\n1. CS Courses\n2. ECE Courses\n3. COE Courses\n4. Enter My Own Subject\nAnswer: ";
     std::cout<<questsub; 
     std::cin>>class_select;
     
@@ -108,6 +111,10 @@ void listclasses(void){
         
         case 3: s_subject = "COE";
         break;
+        
+        case 4:
+        std::cout<<"\nSubject Code: ";
+        std::cin>>s_subject;
     }
     
     //asking which term
@@ -149,18 +156,19 @@ void listclasses(void){
     PyObject* class_sub = PyUnicode_FromString(s_subject);
     PyObject* term = PyLong_FromLong(userterm);
     PyObject* pName = PyUnicode_FromString("get_courses");
+    PyObject* pName2 = PyUnicode_FromString("get_course_numbers");
+    PyObject* pName3 = PyUnicode_FromString("get_class_time");
     
-    //calling the get class description function
+    //calling the get course dictionary function
     PyObject* courselist = PyObject_CallMethodObjArgs(instance, pName, instance,term, class_sub,NULL);
     if (courselist== NULL){
        PyErr_Print();
     }
     assert(courselist != NULL);
    
-   //getting dictionary of files
-   BigCourseList course_list;
-   
-   for(int i = 0; i < PyList_Size(courselist); i++){
+    //getting dictionary of files
+    BigCourseList course_list;
+    for(int i = 0; i < PyList_Size(courselist); i++){
       
       char *term_string;
       char *title_string;
@@ -177,16 +185,7 @@ void listclasses(void){
       PyObject* class_title = PyDict_GetItemString(tempitem,"title");
       PyObject* class_numcheck = PyDict_GetItemString(tempitem,"class_number");
       PyObject* professor = PyDict_GetItemString(tempitem,"instructor");
-      
-      /*<tr> 
-    <th width="9%">Subject</th> 0
-    <th width="8%">Catalog #</th> 1
-    <th width="10%">Term</th>     2
-    <th width="9%">Class # </th>  3
-    <th width="24%">Title</th>    4
-    <th width="25%">Instructor</th>   5 
-    <th width="15%">Credits/Units</th>   6
-  </tr>*/
+    
       
       PyArg_Parse(classes_to_ignore, "s", &term_string);
       PyArg_Parse(class_title, "s", &title_string);
@@ -199,34 +198,68 @@ void listclasses(void){
         course_list.addCourse(tempCourse);
      }
    }
-    //end python api
-    Py_Finalize();
-
+   
     //showing courses    
-    //std::cout<<"\nNumber of courses: "<<course_list.getNumberOfCourses()<<"\n";
+    std::cout<<"\nNumber of courses: "<<course_list.getNumberOfCourses()<<"\n";
     std::cout<<"\nWhat class would you like to get information for: \n";
     course_list.printCourses();
     int userchoice;
     std::cout<<"\nAnswer: ";
     std::cin>>userchoice;
-}
-
-// void chooseCourse(int userChoice){
-//     std::string questsub = "What class would you like to see information for:\n1. CS Courses\n2. ECE Courses\n3. COE Courses\nAnswer: ";
-//     std::cout<<questsub; 
-//     std::cin>>class_select;
+    std::cout<<"\n";
     
-//     switch (class_select){
-//         case 1: s_subject = "CS"; 
-//         break;
+    //getting course that user wants to see
+    Course userCourse = course_list.getCourse((userchoice-1));
+    
+    //calling get course numbers
+    PyObject* class_tit = PyUnicode_FromString(userCourse.getTitle().c_str());
+    PyObject* course_class_numbers = PyObject_CallMethodObjArgs(instance, pName2, class_sub, term, class_tit,NULL);
+    if (course_class_numbers== NULL){
+       PyErr_Print();
+    }
+    assert(course_class_numbers != NULL);
+    
+    //getting class numbers
+    std::vector<int> classNumbers;
+    
+    for(int i = 0;i < PyList_Size(course_class_numbers); i++){
+        char *temp;
+        PyObject* tempitem = PyList_GetItem(course_class_numbers,i);
+        PyArg_Parse(tempitem, "s", &temp);
+        classNumbers.push_back(atoi(temp));
+    }
+    
+    //calling get class time
+    std::vector<std::string> classTimes;
+    
+    for(int i = 0; i < classNumbers.size(); i++){
+        std::string s = std::to_string(classNumbers[i]);
         
-//         case 2: s_subject = "ECE";
-//         break;
+        char *temp;
+        PyObject* class_num = PyUnicode_FromString(s.c_str());
         
-//         case 3: s_subject = "COE";
-//         break;
-//     }
-// }
+        PyObject* class_time = PyObject_CallMethodObjArgs(instance, pName3, class_num, term,NULL);
+        if (class_time== NULL){
+            PyErr_Print();
+        }
+        assert(class_time != NULL);
+        
+        PyArg_Parse(class_time, "s", &temp);
+        classTimes.push_back(temp);
+    }
+    
+    Py_Finalize();
+    
+    std::cout<<"Class details for "<<userCourse.getTitle()<<":";
+     
+    for(int i = 0;i < classNumbers.size(); i++){
+         std::cout<<"\n"<<classNumbers[i]<<": "<<classTimes[i];
+    }
+    std::cout<<"\n";
+    
+    
+    
+}
 
 
 void showClassDescript(int classEntry, int termEntry)
