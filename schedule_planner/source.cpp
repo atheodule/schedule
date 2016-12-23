@@ -8,7 +8,7 @@
 #include <vector>
 #include <typeinfo>
 
-void showClassDescript(int classEntry, int termEntry);
+void showCourseDescript(int classEntry, int termEntry);
 void listclasses(void);
 
 class Course{
@@ -90,6 +90,7 @@ class BigCourseList{
 
 int main(void)
 {
+    std::cout<<"~~~~~~Welcome to Class Scheduler Assitant!~~~~~\n";
     listclasses();
     return 0;
 }
@@ -99,8 +100,7 @@ void listclasses(void){
     int class_select; char *s_subject; int userterm;
     
     std::string questsub = "What subject would you like to search:\n1. CS Courses\n2. ECE Courses\n3. COE Courses\n4. Enter My Own Subject\nAnswer: ";
-    std::cout<<questsub; 
-    std::cin>>class_select;
+    std::cout<<questsub; std::cin>>class_select;
     
     switch (class_select){
         case 1: s_subject = "CS"; 
@@ -115,12 +115,12 @@ void listclasses(void){
         case 4:
         std::cout<<"\nSubject Code: ";
         std::cin>>s_subject;
+        break;
     }
     
     //asking which term
     std::string questterm = "\nWhat term would you like to search:\n1. Fall\n2. Spring\n3. Summer\nAnswer: ";
-    std::cout<<questterm; 
-    std::cin>>userterm;
+    std::cout<<questterm; std::cin>>userterm;
     
     switch (userterm){
         case 1: userterm = 2171; 
@@ -176,17 +176,12 @@ void listclasses(void){
       char *professor_string;
       
       PyObject* tempitem = PyList_GetItem(courselist,i);
-      //instructor gives you class title
-      //catalog_number gives you course subject, ie ECE
-      //term gives you course number, ie for class ECE 1201 it will give you 1201
-      //title gives you the session and term number ie 2171 AT
-      //class_number gives you class number
+
       PyObject* classes_to_ignore = PyDict_GetItemString(tempitem,"catalog_number");
       PyObject* class_title = PyDict_GetItemString(tempitem,"title");
       PyObject* class_numcheck = PyDict_GetItemString(tempitem,"class_number");
       PyObject* professor = PyDict_GetItemString(tempitem,"instructor");
     
-      
       PyArg_Parse(classes_to_ignore, "s", &term_string);
       PyArg_Parse(class_title, "s", &title_string);
       PyArg_Parse(class_numcheck, "s", &class_string);
@@ -201,15 +196,14 @@ void listclasses(void){
    
     //showing courses    
     std::cout<<"\nNumber of courses: "<<course_list.getNumberOfCourses()<<"\n";
-    std::cout<<"\nWhat class would you like to get information for: \n";
+    std::cout<<"\nWhat course would you like to get information for: \n";
     course_list.printCourses();
-    int userchoice;
     std::cout<<"\nAnswer: ";
-    std::cin>>userchoice;
-    std::cout<<"\n";
+    int userchoice; std::cin>>userchoice; std::cout<<"\n";
     
     //getting course that user wants to see
     Course userCourse = course_list.getCourse((userchoice-1));
+    std::cout<<"You picked "<<userCourse.getTitle()<<"\n";
     
     //calling get course numbers
     PyObject* class_tit = PyUnicode_FromString(userCourse.getTitle().c_str());
@@ -257,13 +251,10 @@ void listclasses(void){
     }
     std::cout<<"\n";
     
-    
-    
 }
 
 
-void showClassDescript(int classEntry, int termEntry)
-{
+void showCourseDescript(int classEntry, int termEntry){
     //initilazing variables
     char *cstr;
     int userterm = termEntry; 
@@ -302,8 +293,16 @@ void showClassDescript(int classEntry, int termEntry)
     
     // convert the result to a string 
     PyArg_Parse(result, "s", &cstr);
-    std::cout << "\nThe class description for class "<< userclassnum <<" and term "<< userterm <<" is "<< cstr<<"\n";
+    std::cout << "\nThe course description for class "<< userclassnum <<" and term "<< userterm <<" is "<< cstr<<"\n";
 
     //end python api
     Py_Finalize();
 }
+
+// void userMenu(){
+//     int userAns;
+//     std::cout<<"\nWhat would you like to do: \n1. See Course Description\n2. View Class Times and Instructor\n3. Pick another subject\n4. Pick another term\n5. Pick another course\nAnswer: ";
+//     std::cin>>userAns;
+// }
+
+

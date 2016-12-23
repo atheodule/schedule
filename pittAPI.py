@@ -243,8 +243,11 @@ class CourseAPI:
             cells = row.findChildren('td')
             for cell in cells:
                 if has_time:
-                    return cell.string.strip()
-                if len(cell.contents) > 0 and str(cell.contents[0]) == 'AT':
+                    if len(cell) > 1:
+                       return (cell.contents[0].string.strip()+' and '+cell.contents[2].string.strip())
+                    else:    
+                        return cell.contents[0].string.strip()
+                if str(cell.contents[0]) == 'AT' or str(cell.contents[0]) == 'SE3' or str(cell.contents[0]) == 'ST' or str(cell.contents[0]) == '6W1' or str(cell.contents[0]) == '6W2' or str(cell.contents[0]) == '12W':
                     has_time = True
 
     @staticmethod
@@ -260,11 +263,65 @@ class CourseAPI:
         course_numbers = []
         for row in rows:
             cells = row.findChildren('td')
-            for index, cell in enumerate(cells):
-                if len(cell.contents) > 0 and str(cell.contents[0]) == course_title:
-                    prev = cells[index-1]
-                    course_numbers.append(prev.find('a').contents[0])  
+            
+            try:
+                for index, cell in enumerate(cells):
+                    if len(cell.contents) > 0 and str(cell.contents[0]) == course_title:
+                        prev = cells[index-1]
+                        course_numbers.append(prev.find('a').contents[0])
+                        #print(prev.find('a').contents[0])
+                        #print(cells)
+            except Exception:
+                print ("blah")
         
         return course_numbers
 
+    @staticmethod
+    def get_class_prereq(class_number, term):
+        """
+        :returns: a string that is the prereq for CLASS_NUMBER in term TERM
 
+        :param: class_number: String, class number
+        :param: term: String, term number
+        """
+        
+        url = 'http://www.courses.as.pitt.edu/detail.asp?CLASSNUM={}&TERM={}'.format(class_number, term)
+        page = urlopen(url)
+        soup = BeautifulSoup(page.read(), 'html.parser')
+        table = soup.findChildren('table')[0]
+        rows = table.findChildren('tr')
+        
+        has_prereq = False
+        for row in rows:
+            cells = row.findChildren('td')
+            for cell in cells:
+                if has_prereq:
+                    return cell.string.strip()
+                if len(cell.contents) > 0 and str(cell.contents[0]) == 'Prerequisite(s)':
+                    has_prereq = True
+
+    @staticmethod
+    def get_class_instructor(class_number, term):
+        """
+        :returns: a string that is the instructor for CLASS_NUMBER in term TERM
+
+        :param: class_number: String, class number
+        :param: term: String, term number
+        """
+        
+        url = 'http://www.courses.as.pitt.edu/detail.asp?CLASSNUM={}&TERM={}'.format(class_number, term)
+        page = urlopen(url)
+        soup = BeautifulSoup(page.read(), 'html.parser')
+        table = soup.findChildren('table')[0]
+        rows = table.findChildren('tr')
+        
+        for row in rows:
+            cells = row.findChildren('td')
+            
+            try:
+                for index, cell in enumerate(cells):
+                    if len(cell.contents) > 0 and str(cell.contents[0]) == 'Description':
+                        prev = cells[index-1]
+                        return prev.string.strip()
+            except Exception:
+                print ("blah")
