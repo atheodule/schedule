@@ -63,14 +63,16 @@ class CourseAPI:
         course_details = []
 
         for course in courses:
+        
             details = [course_detail.string.replace('&nbsp;', '').strip()
                        for course_detail in course
-                       if course_detail.string is not None
-                       and len(course_detail.string.strip()) > 2]
-
+                       if course_detail.string is not None ]
+                       #and len(course_detail.string.strip()) > 2]
+            #print(details)
             if len(details) == 5:
+                #print(5)
                 course_details.append(
-                    {
+                    {   
                         'subject': details[0],
                         'catalog_number': details[1],
                         'term': details[2].replace('\r\n\t', ' '),
@@ -81,6 +83,7 @@ class CourseAPI:
                     }
                 )
             if len(details) == 6:
+                #print(6)
                 course_details.append(
                     {
                         'subject': details[0],
@@ -95,19 +98,19 @@ class CourseAPI:
             else:
                 course_details.append(
                     {
-                        'subject': details[0],
-                        'catalog_number': details[1],
-                        'term': details[2].replace('\r\n\t', ' '),
+                        'subject': details[1],
+                        'catalog_number': details[3],
+                        'term': details[5].replace('\r\n\t', ' '),
                         'class_number': course.find('a').contents[0],
-                        'title': details[3],
-                        'instructor': 'Not decided',
-                        #'credits': details[5]
+                        'title': details[8],
+                        'instructor': details[10],
+                        'credits': details[12]
                     }
                 )
 
         if len(course_details) == 0:
             raise InvalidParameterException("The TERM or SUBJECT is invalid")
-
+        #print(course_details)
         return course_details
 
     @staticmethod
@@ -315,13 +318,17 @@ class CourseAPI:
         table = soup.findChildren('table')[0]
         rows = table.findChildren('tr')
         
-        for row in rows:
+        for index,row in enumerate(rows):
             cells = row.findChildren('td')
-            
-            try:
-                for index, cell in enumerate(cells):
-                    if len(cell.contents) > 0 and str(cell.contents[0]) == 'Description':
-                        prev = cells[index-1]
-                        return prev.string.strip()
-            except Exception:
-                print ("blah")
+
+            for index2, cell in enumerate(cells):
+                #print(cell.contents[0])
+                if len(cell.contents) > 0 and str(cell.contents[0]) == '<strong>Description</strong>':
+                    prev_row = rows[index-1]
+                    cells2 = prev_row.findChildren('td')
+                    mycell = cells2[8]
+
+                    if mycell is not None:
+                        return mycell.string
+                    else:
+                        return 'Unknown'

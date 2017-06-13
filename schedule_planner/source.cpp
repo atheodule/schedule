@@ -114,12 +114,13 @@ void listclasses(void){
         
         case 4:
         std::cout<<"\nSubject Code: ";
+        s_subject = new char [10];
         std::cin>>s_subject;
         break;
     }
     
     //asking which term
-    std::string questterm = "\nWhat term would you like to search:\n1. Fall\n2. Spring\n3. Summer\nAnswer: ";
+    std::string questterm = "\nWhat term would you like to search:\n1. Fall 2016\n2. Spring 2017\n3. Summer 2017\nAnswer: ";
     std::cout<<questterm; std::cin>>userterm;
     
     switch (userterm){
@@ -129,7 +130,7 @@ void listclasses(void){
         case 2: userterm = 2174;
         break;
         
-        case 3: userterm = 2167;
+        case 3: userterm = 2177;
         break;
     }
    
@@ -140,7 +141,7 @@ void listclasses(void){
 
     //loading pittAPI
     PyObject* module = PyImport_ImportModule("pittAPI");
-     if (module== NULL){
+     if (module == NULL){
        PyErr_Print();
     }
     assert(module != NULL);
@@ -158,6 +159,8 @@ void listclasses(void){
     PyObject* pName = PyUnicode_FromString("get_courses");
     PyObject* pName2 = PyUnicode_FromString("get_course_numbers");
     PyObject* pName3 = PyUnicode_FromString("get_class_time");
+    PyObject* pName4 = PyUnicode_FromString("get_class_instructor");
+    
     
     //calling the get course dictionary function
     PyObject* courselist = PyObject_CallMethodObjArgs(instance, pName, instance,term, class_sub,NULL);
@@ -170,29 +173,25 @@ void listclasses(void){
     BigCourseList course_list;
     for(int i = 0; i < PyList_Size(courselist); i++){
       
+      //initilazing temp variables
       char *term_string;
       char *title_string;
-      char *class_string;
-      char *professor_string;
       
+      //getting temp item
       PyObject* tempitem = PyList_GetItem(courselist,i);
-
+     
+      //setting attributes from temp item    
       PyObject* classes_to_ignore = PyDict_GetItemString(tempitem,"catalog_number");
       PyObject* class_title = PyDict_GetItemString(tempitem,"title");
-      PyObject* class_numcheck = PyDict_GetItemString(tempitem,"class_number");
-      PyObject* professor = PyDict_GetItemString(tempitem,"instructor");
-    
       PyArg_Parse(classes_to_ignore, "s", &term_string);
       PyArg_Parse(class_title, "s", &title_string);
-      PyArg_Parse(class_numcheck, "s", &class_string);
-      PyArg_Parse(professor, "s", &professor_string);
-     
       
-     if(atoi(term_string) < 1885){
+      //adding to courselist
+      if(atoi(term_string) < 1900){
         Course tempCourse(title_string,term_string);
         course_list.addCourse(tempCourse);
-     }
-   }
+      }
+    }
    
     //showing courses    
     std::cout<<"\nNumber of courses: "<<course_list.getNumberOfCourses()<<"\n";
@@ -225,11 +224,12 @@ void listclasses(void){
     
     //calling get class time
     std::vector<std::string> classTimes;
+    std::vector<std::string> classInstructors;
     
     for(int i = 0; i < classNumbers.size(); i++){
         std::string s = std::to_string(classNumbers[i]);
         
-        char *temp;
+        char *temp; 
         PyObject* class_num = PyUnicode_FromString(s.c_str());
         
         PyObject* class_time = PyObject_CallMethodObjArgs(instance, pName3, class_num, term,NULL);
@@ -242,12 +242,28 @@ void listclasses(void){
         classTimes.push_back(temp);
     }
     
+    for(int i = 0; i < classNumbers.size(); i++){
+        std::string s = std::to_string(classNumbers[i]);
+        char *temp2;
+        PyObject* class_num = PyUnicode_FromString(s.c_str());
+        
+        PyObject* class_instruct = PyObject_CallMethodObjArgs(instance, pName4, class_num, term,NULL);
+        if (class_instruct== NULL){
+            PyErr_Print();
+        }
+        assert(class_instruct != NULL);
+        
+        PyArg_Parse(class_instruct, "s", &temp2);
+
+        classInstructors.push_back(temp2);
+    }
+    
     Py_Finalize();
     
-    std::cout<<"Class details for "<<userCourse.getTitle()<<":";
+    std::cout<<"\nClass details for "<<userCourse.getTitle()<<":";
      
     for(int i = 0;i < classNumbers.size(); i++){
-         std::cout<<"\n"<<classNumbers[i]<<": "<<classTimes[i];
+         std::cout<<"\n"<<classNumbers[i]<<": "<<classTimes[i]<<" / "<<classInstructors[i];
     }
     std::cout<<"\n";
     
